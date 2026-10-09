@@ -7,12 +7,14 @@
 <meta name="description" content="Consultoria direta com engenheiro de software especialista em IA. Debug, code review e MVPs com IA.">
 <meta name="theme-color" content="#05070d">
 <meta name="view-transition" content="same-origin">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; object-src 'none'">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="security.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: {
@@ -210,7 +212,7 @@ tailwind.config = { theme: { extend: {
     <div class="grid lg:grid-cols-3 gap-6 items-stretch">
 
       <div class="reveal tilt-wrap">
-        <article class="tilt glass rounded-3xl p-7 h-full flex flex-col">
+        <article class="pricing-card tilt glass rounded-3xl p-7 h-full flex flex-col">
           <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-neon/20 text-neon">ESSENTIAL</span>
           <h3 class="text-2xl font-bold mt-4">Debug Express</h3>
           <p class="text-white/50 text-sm font-mono mt-1">Call de 30min</p>
@@ -227,7 +229,7 @@ tailwind.config = { theme: { extend: {
       </div>
 
       <div class="reveal tilt-wrap lg:-mt-4 lg:mb-4">
-        <article class="tilt popular glass rounded-3xl p-7 h-full flex flex-col">
+        <article class="pricing-card tilt popular glass rounded-3xl p-7 h-full flex flex-col">
           <span class="absolute top-0 right-0 bg-gradient-to-r from-neon to-cyan2 text-ink text-xs font-bold px-4 py-1.5 rounded-bl-2xl">★ MAIS POPULAR</span>
           <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-cyan2/20 text-cyan2">PRO</span>
           <h3 class="text-2xl font-bold mt-4">Code Review &amp; AI Boost</h3>
@@ -245,7 +247,7 @@ tailwind.config = { theme: { extend: {
       </div>
 
       <div class="reveal tilt-wrap">
-        <article class="tilt glass rounded-3xl p-7 h-full flex flex-col">
+        <article class="pricing-card tilt glass rounded-3xl p-7 h-full flex flex-col">
           <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-neon/20 text-neon">PREMIUM</span>
           <h3 class="text-2xl font-bold mt-4">MVP Sprint</h3>
           <p class="text-white/50 text-sm font-mono mt-1">Entrega em 7 dias</p>

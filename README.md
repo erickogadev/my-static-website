@@ -32,6 +32,8 @@
 | Arquivo | Descrição |
 |:--|:--|
 | 📄 `index.html` | Página completa: HTML + Tailwind + CSS customizado + JavaScript |
+| 🛡️ `security.js` | Guarda inicial contra scripts externos, overlays de anúncio e alterações nos CTAs |
+| 🔐 `security.md` | Documentação completa do sistema de segurança e suas limitações |
 | 🧾 `manifest.json` | Manifesto PWA (nome, cores, ícone, modo `standalone`) |
 | ⚙️ `sw.js` | Service worker: cache `ek-v1`, *network-first* com fallback para cache |
 | 🎨 `icon.svg` | Ícone do app (`</>` com gradiente azul → verde) |
@@ -44,6 +46,7 @@
 - **CSS3**: Grid, Flexbox, `backdrop-filter`, `mask-image`, `animation-timeline: scroll()`, View Transitions (`@view-transition`)
 - **JavaScript ES6+** vanilla em uma IIFE com `'use strict'`
 - **GSAP 3.12.5 + ScrollTrigger** via CDN
+- **MutationObserver + CSP** para proteção contra injeções no DOM e scripts externos
 
 ## 🧭 Seções da página
 
@@ -118,6 +121,30 @@ Substitua `5517992634306` em `index.html` para trocar o número. Para mudar as m
 - `sw.js` só é registrado em `http(s)` (não funciona via `file://`)
 - Ao mudar os arquivos em cache, incremente `CACHE` em `sw.js`
 
+## 🛡️ Segurança
+
+O site carrega `security.js` como o primeiro script do `<head>`, antes do Tailwind,
+GSAP e do JavaScript inline. O guardião:
+
+- monitora `document.head` e `document.body` com `MutationObserver`;
+- remove scripts externos não autorizados, iframes e overlays publicitários suspeitos;
+- permite scripts locais, Tailwind, GSAP e `wa.me`;
+- preserva e restaura os links `https://wa.me/5517992634306`;
+- protege o conteúdo dos três cards com a classe `.pricing-card`;
+- remove handlers inline injetados, como `onclick`, `onload` e `onerror`;
+- dificulta a substituição de `eval` e `Function`;
+- registra tentativas com timestamp usando `console.warn`;
+- exibe o aviso `Security: external modification blocked` após três tentativas
+  em uma janela de dez segundos.
+
+O `index.html` também declara uma Content Security Policy (CSP) que permite apenas
+as origens de script utilizadas pelo site e define `object-src 'none'`.
+
+Essa é uma camada de proteção no navegador e não substitui validações no servidor.
+Extensões com privilégios elevados ainda podem modificar o ambiente do navegador.
+Consulte [`security.md`](security.md) para a documentação técnica completa,
+efeitos verificados, limitações e recomendações de produção.
+
 ## 🚀 Como executar
 
 ```bash
@@ -136,6 +163,13 @@ npx serve .
 | 💰 Planos | seção `#precos` em `index.html` |
 
 ## ⚠️ Notas para produção
+
+- `security.js` deve permanecer como o primeiro script no `<head>`, antes do Tailwind,
+  GSAP e qualquer JavaScript inline.
+- O CSP está declarado como meta no `<head>`; para uma proteção efetiva em produção,
+  envie a mesma política também como cabeçalho HTTP.
+- Ao adicionar um novo CDN ou widget, atualize `security.js`, a diretiva `script-src`
+  do CSP e [`security.md`](security.md).
 
 - Tailwind via CDN é só para desenvolvimento: compile com o Tailwind CLI antes de publicar.
 - O site depende de CDNs (Tailwind, GSAP, Google Fonts); considere hospedar localmente.
