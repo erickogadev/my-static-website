@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eric Koga | AI Engineer — Transformo ideias em SaaS com IA</title>
+<meta name="description" content="Consultoria direta com engenheiro de software especialista em IA. Debug, code review e MVPs com IA.">
+<meta name="theme-color" content="#05070d">
+<meta name="view-transition" content="same-origin">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { neon: '#0A84FF', cyan2: '#5EFB6E', ink: '#05070d' },
+  fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','monospace'] }
+}}};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  @view-transition { navigation: auto; }
+  html { scroll-behavior: smooth; }
+  body { background:#05070d; color:#e6edf7; -webkit-tap-highlight-color: transparent; overflow-x:hidden; }
+  .grid-bg {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(10,132,255,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10,132,255,.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 80%);
+  }
+  .glow-orb { position: fixed; z-index:-3; width:60vmax; height:60vmax; border-radius:50%; filter: blur(120px); opacity:.18; pointer-events:none; }
+  .glass { background: rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); }
+  .text-grad { background: linear-gradient(90deg,#0A84FF,#5EFB6E); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* Liquid glass navbar */
+  #nav { transition: background .4s, backdrop-filter .4s, border-color .4s, margin .4s, border-radius .4s; border:1px solid transparent; }
+  #nav.scrolled { background: rgba(10,18,34,.55); backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-color: rgba(255,255,255,.12); box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15); }
+
+  .btn { position:relative; display:inline-flex; align-items:center; justify-content:center; gap:.5rem; min-height:48px; padding:.8rem 1.5rem;
+    border-radius:999px; font-weight:600; will-change: transform; transition: box-shadow .3s, background .3s; touch-action: manipulation; }
+  .btn { overflow:hidden; }
+  .ripple { position:absolute; border-radius:50%; pointer-events:none; background:rgba(255,255,255,.45); transform:scale(0); animation: ripple .6s ease-out forwards; }
+  @keyframes ripple { to { transform:scale(1); opacity:0; } }
+  .btn-primary { background: linear-gradient(90deg,#0A84FF,#2fb8b0 60%,#5EFB6E); color:#021018; box-shadow:0 0 24px rgba(10,132,255,.45); }
+  .btn-primary:hover { box-shadow:0 0 40px rgba(94,251,110,.55); }
+  .btn-ghost { border:1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
+  .btn-ghost:hover { border-color:#0A84FF; box-shadow:0 0 20px rgba(10,132,255,.4); }
+
+  .cursor::after { content:'▌'; color:#5EFB6E; animation: blink 1s steps(1) infinite; margin-left:2px; }
+  @keyframes blink { 50% { opacity:0; } }
+
+  /* Marquee */
+  .marquee { overflow:hidden; mask-image: linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent); -webkit-mask-image: linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent); }
+  .marquee-track { display:flex; width:max-content; gap:1rem; animation: scroll 35s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  @keyframes scroll { to { transform: translateX(calc(-50% - .5rem)); } }
+
+  /* Tilt cards */
+  .tilt-wrap { perspective: 1000px; }
+  .tilt { position:relative; transform-style: preserve-3d; transition: transform .15s ease-out, box-shadow .3s; overflow:hidden; }
+  .tilt::before { content:''; position:absolute; inset:0; pointer-events:none; opacity:0; transition: opacity .3s;
+    background: radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(94,251,110,.18), rgba(10,132,255,.14) 40%, transparent 70%); }
+  .tilt:hover::before, .tilt.active::before { opacity:1; }
+  .tilt:hover { box-shadow: 0 20px 60px rgba(10,132,255,.25); }
+  .popular { border-color: rgba(94,251,110,.55); box-shadow: 0 0 40px rgba(94,251,110,.15); }
+
+  /* Scroll-driven progress bar (progressive enhancement) */
+  #progress { position:fixed; top:0; left:0; height:3px; width:100%; background:linear-gradient(90deg,#0A84FF,#5EFB6E); transform-origin:0 50%; transform:scaleX(0); z-index:60; }
+  @supports (animation-timeline: scroll()) {
+    #progress { animation: grow linear both; animation-timeline: scroll(root); }
+    @keyframes grow { to { transform: scaleX(1); } }
+  }
+
+  .reveal { opacity:0; transform: translateY(28px); }
+  .no-js .reveal, .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity:1; transform:none; } .marquee-track { animation:none; } html { scroll-behavior:auto; }
+  }
+  .code-line { opacity:0; }
+  ::selection { background:#0A84FF; color:#fff; }
+</style>
+</head>
+<body class="font-sans antialiased no-js">
+<div id="progress"></div>
+<div class="grid-bg"></div>
+<div class="glow-orb bg-neon" style="top:-20vmax;left:-20vmax"></div>
+<div class="glow-orb bg-cyan2" style="bottom:-25vmax;right:-20vmax;opacity:.1"></div>
+
+<!-- NAVBAR -->
+<header class="fixed top-0 inset-x-0 z-50 px-3 pt-3 sm:px-6">
+  <nav id="nav" class="mx-auto max-w-6xl flex items-center justify-between rounded-full px-4 py-2.5" aria-label="Principal">
+    <a href="#top" class="font-mono font-semibold text-sm sm:text-base flex items-center gap-2">
+      <span class="text-cyan2">&lt;/&gt;</span> Eric Koga <span class="text-white/40">|</span> <span class="text-grad">AI Engineer</span>
+    </a>
+    <ul class="hidden md:flex items-center gap-7 text-sm text-white/70">
+      <li><a class="hover:text-white" href="#servicos">Serviços</a></li>
+      <li><a class="hover:text-white" href="#stack">Stack</a></li>
+      <li><a class="hover:text-white" href="#precos">Preços</a></li>
+      <li><a class="hover:text-white" href="#contato">Contato</a></li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Vim%20pelo%20site." target="_blank" rel="noopener" class="btn btn-primary magnetic !min-h-[40px] !py-2 !px-4 text-sm">Falar no WhatsApp</a>
+      <button id="menuBtn" class="md:hidden w-11 h-11 grid place-items-center rounded-full glass" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </nav>
+  <div id="mobileMenu" class="hidden md:hidden mx-auto max-w-6xl mt-2 glass rounded-3xl p-4">
+    <ul class="grid gap-1 text-base">
+      <li><a class="block px-4 py-3 rounded-xl hover:bg-white/10" href="#servicos">Serviços</a></li>
+      <li><a class="block px-4 py-3 rounded-xl hover:bg-white/10" href="#stack">Stack</a></li>
+      <li><a class="block px-4 py-3 rounded-xl hover:bg-white/10" href="#precos">Preços</a></li>
+      <li><a class="block px-4 py-3 rounded-xl hover:bg-white/10" href="#contato">Contato</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="top">
+<!-- HERO -->
+<section class="relative min-h-[100svh] flex items-center pt-28 pb-16 overflow-hidden">
+  <canvas id="particles" class="absolute inset-0 w-full h-full -z-[1]" aria-hidden="true"></canvas>
+  <div class="mx-auto max-w-6xl px-5 sm:px-6 grid lg:grid-cols-2 gap-12 items-center w-full">
+    <div>
+      <p class="reveal inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-mono text-cyan2 mb-6">
+        <span class="w-2 h-2 rounded-full bg-cyan2 animate-pulse"></span> Building with AI, Shipping Faster
+      </p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.08] tracking-tight min-h-[3.3em] sm:min-h-[2.4em]" aria-label="Eu transformo ideias em SaaS com IA">
+        <span id="typed" class="text-grad cursor" aria-hidden="true"></span>
+      </h1>
+      <p class="reveal mt-6 text-lg text-white/70 max-w-xl">Consultoria direta com engenheiro de software especialista em IA. Sem enrolação, só código que gera resultado.</p>
+      <div class="reveal mt-8 flex flex-col sm:flex-row gap-3">
+        <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Quero%20conhecer%20os%20planos%20e%20pre%C3%A7os." target="_blank" rel="noopener noreferrer" class="btn btn-primary magnetic">Ver planos e preços →</a>
+        <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Vim%20pelo%20site%20e%20quero%20conversar%20sobre%20um%20projeto." target="_blank" rel="noopener noreferrer" class="btn btn-ghost magnetic">Falar no WhatsApp</a>
+      </div>
+      <dl class="reveal mt-10 grid grid-cols-3 gap-4 max-w-md text-center">
+        <div class="glass rounded-2xl py-3"><dt class="text-xs text-white/50">Entrega MVP</dt><dd class="font-bold text-grad text-xl">7 dias</dd></div>
+        <div class="glass rounded-2xl py-3"><dt class="text-xs text-white/50">Call a partir de</dt><dd class="font-bold text-grad text-xl">R$150</dd></div>
+        <div class="glass rounded-2xl py-3"><dt class="text-xs text-white/50">Contato</dt><dd class="font-bold text-grad text-xl">Direto</dd></div>
+      </dl>
+    </div>
+
+    <div class="reveal glass rounded-2xl overflow-hidden shadow-2xl shadow-neon/20" aria-label="Exemplo de geração de código com IA">
+      <div class="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/30">
+        <span class="w-3 h-3 rounded-full bg-red-500/80"></span><span class="w-3 h-3 rounded-full bg-yellow-400/80"></span><span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+        <span class="ml-3 text-xs font-mono text-white/50">agent.py — AI generating…</span>
+      </div>
+      <pre class="p-4 sm:p-5 text-[12px] sm:text-sm font-mono leading-relaxed overflow-x-auto"><code id="code"><span class="code-line"><span class="text-white/40"># prompt: "crie um agente RAG para suporte"</span></span>
+<span class="code-line"><span class="text-pink-400">from</span> langchain <span class="text-pink-400">import</span> RAGChain</span>
+<span class="code-line"><span class="text-pink-400">from</span> openai <span class="text-pink-400">import</span> OpenAI</span>
+<span class="code-line"> </span>
+<span class="code-line"><span class="text-pink-400">async def</span> <span class="text-neon">atender</span>(pergunta: <span class="text-cyan2">str</span>):</span>
+<span class="code-line">    docs = <span class="text-pink-400">await</span> vector_db.search(pergunta)</span>
+<span class="code-line">    resp = <span class="text-pink-400">await</span> llm.chat(context=docs)</span>
+<span class="code-line">    <span class="text-pink-400">return</span> resp  <span class="text-white/40"># ✓ deploy em 7 dias</span></span></code></pre>
+      <div class="px-4 py-2 border-t border-white/10 bg-black/30 text-xs font-mono text-cyan2 flex justify-between"><span>● gerado por IA</span><span>0 bugs · 100% testado</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK MARQUEE -->
+<section id="stack" class="py-10 border-y border-white/10 bg-black/20" aria-label="Tecnologias">
+  <div class="marquee">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="servicos" class="py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-5 sm:px-6">
+    <div class="reveal text-center max-w-2xl mx-auto mb-12">
+      <p class="font-mono text-cyan2 text-sm">// o que eu faço</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold mt-2">Do problema ao <span class="text-grad">deploy</span></h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      <article class="reveal glass rounded-3xl p-7 hover:-translate-y-1 hover:border-neon/60 transition">
+        <div class="w-12 h-12 rounded-2xl bg-neon/20 grid place-items-center text-2xl mb-5">🤖</div>
+        <h3 class="text-xl font-bold">Automação com IA</h3>
+        <p class="mt-3 text-white/65">Agentes, chatbots e fluxos com LLMs e RAG que eliminam trabalho manual e atendem seus clientes 24/7.</p>
+      </article>
+      <article class="reveal glass rounded-3xl p-7 hover:-translate-y-1 hover:border-cyan2/60 transition">
+        <div class="w-12 h-12 rounded-2xl bg-cyan2/20 grid place-items-center text-2xl mb-5">🚀</div>
+        <h3 class="text-xl font-bold">MVP em 7 dias</h3>
+        <p class="mt-3 text-white/65">Sua ideia validada no ar em uma semana: Next.js, banco, autenticação e pagamentos prontos para receber usuários.</p>
+      </article>
+      <article class="reveal glass rounded-3xl p-7 hover:-translate-y-1 hover:border-neon/60 transition">
+        <div class="w-12 h-12 rounded-2xl bg-neon/20 grid place-items-center text-2xl mb-5">🛠️</div>
+        <h3 class="text-xl font-bold">Otimização de Código Legado</h3>
+        <p class="mt-3 text-white/65">Refatoração, testes e performance com apoio de IA para destravar seu time e reduzir dívida técnica.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="precos" class="py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-5 sm:px-6">
+    <div class="reveal text-center max-w-2xl mx-auto mb-14">
+      <p class="font-mono text-cyan2 text-sm">// investimento</p>
+      <h2 class="text-3xl sm:text-4xl font-extrabold mt-2">Planos <span class="text-grad">transparentes</span></h2>
+      <p class="text-white/60 mt-3">Preço fechado em reais. Sem surpresas.</p>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-6 items-stretch">
+
+      <div class="reveal tilt-wrap">
+        <article class="tilt glass rounded-3xl p-7 h-full flex flex-col">
+          <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-neon/20 text-neon">ESSENTIAL</span>
+          <h3 class="text-2xl font-bold mt-4">Debug Express</h3>
+          <p class="text-white/50 text-sm font-mono mt-1">Call de 30min</p>
+          <p class="mt-4 text-4xl font-extrabold">R$150</p>
+          <p class="mt-3 text-white/70">Resolvo seu bug ao vivo + gravação.</p>
+          <ul class="mt-6 space-y-3 text-sm flex-1">
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> 1 problema específico</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Correção em tela compartilhada</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Dica de IA para evitar de novo</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Gravação da sessão</li>
+          </ul>
+          <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Quero%20agendar%20o%20Debug%20Express%20de%20R%24150.%20Meu%20bug%2Fproblema%20%C3%A9%3A%20" target="_blank" rel="noopener noreferrer" class="btn btn-ghost magnetic mt-8 w-full">Agendar por R$150</a>
+        </article>
+      </div>
+
+      <div class="reveal tilt-wrap lg:-mt-4 lg:mb-4">
+        <article class="tilt popular glass rounded-3xl p-7 h-full flex flex-col">
+          <span class="absolute top-0 right-0 bg-gradient-to-r from-neon to-cyan2 text-ink text-xs font-bold px-4 py-1.5 rounded-bl-2xl">★ MAIS POPULAR</span>
+          <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-cyan2/20 text-cyan2">PRO</span>
+          <h3 class="text-2xl font-bold mt-4">Code Review &amp; AI Boost</h3>
+          <p class="text-white/50 text-sm font-mono mt-1">60min + Relatório PDF</p>
+          <p class="mt-4 text-4xl font-extrabold text-grad">R$300</p>
+          <p class="mt-3 text-white/70">Reviso seu código e adiciono IA onde faz sentido.</p>
+          <ul class="mt-6 space-y-3 text-sm flex-1">
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Análise completa do código</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Sugestões de melhoria e arquitetura</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Pontos de integração com IA</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Relatório PDF detalhado</li>
+          </ul>
+          <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Quero%20o%20Code%20Review%20%26%20AI%20Boost%20de%20R%24300.%20Meu%20projeto%20%C3%A9%3A%20" target="_blank" rel="noopener noreferrer" class="btn btn-primary magnetic mt-8 w-full">Quero o Boost de R$300</a>
+        </article>
+      </div>
+
+      <div class="reveal tilt-wrap">
+        <article class="tilt glass rounded-3xl p-7 h-full flex flex-col">
+          <span class="self-start text-xs font-mono px-3 py-1 rounded-full bg-neon/20 text-neon">PREMIUM</span>
+          <h3 class="text-2xl font-bold mt-4">MVP Sprint</h3>
+          <p class="text-white/50 text-sm font-mono mt-1">Entrega em 7 dias</p>
+          <p class="mt-4 text-4xl font-extrabold">R$1.500</p>
+          <p class="mt-3 text-white/70">Sua ideia virando SaaS no ar, com IA no core.</p>
+          <ul class="mt-6 space-y-3 text-sm flex-1">
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> MVP funcional com 1 feature de IA</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Auth, banco de dados e deploy</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> Código-fonte 100% seu</li>
+            <li class="flex gap-2"><span class="text-cyan2">✓</span> 7 dias de suporte pós-entrega</li>
+          </ul>
+          <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!%20Quero%20o%20MVP%20Sprint%20de%20R%241.500.%20Minha%20ideia%20de%20SaaS%20%C3%A9%3A%20" target="_blank" rel="noopener noreferrer" class="btn btn-ghost magnetic mt-8 w-full">Começar por R$1.500</a>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contato" class="py-20">
+  <div class="reveal mx-auto max-w-4xl px-5 sm:px-6">
+    <div class="glass rounded-3xl p-8 sm:p-14 text-center">
+      <h2 class="text-3xl sm:text-4xl font-extrabold">Pronto para <span class="text-grad">shippar mais rápido</span>?</h2>
+      <p class="mt-4 text-white/65">Me conte sua ideia ou seu problema. Respondo direto, sem intermediários.</p>
+      <a href="https://wa.me/5517992634306?text=Ol%C3%A1%20Eric!" target="_blank" rel="noopener" class="btn btn-primary magnetic mt-8">Falar no WhatsApp</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="border-t border-white/10 py-8 text-center text-sm text-white/45 pb-[max(2rem,env(safe-area-inset-bottom))]">
+  © <span id="year"></span> Eric Koga | AI Engineer · Feito com IA e café ☕
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  document.body.classList.remove('no-js');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Mobile menu
+  const mb = document.getElementById('menuBtn'), mm = document.getElementById('mobileMenu');
+  mb.addEventListener('click', () => { const o = mm.classList.toggle('hidden'); mb.setAttribute('aria-expanded', String(!o)); });
+  mm.addEventListener('click', e => { if (e.target.closest('a')) { mm.classList.add('hidden'); mb.setAttribute('aria-expanded','false'); } });
+
+  // Navbar blur on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  // Marquee
+  const stack = ['Python','TypeScript','Next.js','React','LLMs','RAG','LangChain','OpenAI','Claude','Node.js','PostgreSQL','Supabase','Vercel','Docker','Tailwind','FastAPI','Vector DBs','Agents'];
+  const track = document.getElementById('marqueeTrack');
+  track.innerHTML = [...stack, ...stack].map(t => `<span class="glass rounded-full px-5 py-2.5 font-mono text-sm whitespace-nowrap"><span class="text-cyan2">#</span> ${t}</span>`).join('');
+
+  // Typing
+  const typed = document.getElementById('typed'), text = 'Eu transformo ideias em SaaS com IA';
+  if (reduce) typed.textContent = text; else {
+    let i = 0; (function tick(){ typed.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 55 + Math.random()*50); })();
+  }
+
+  // Code window line reveal
+  const lines = [...document.querySelectorAll('.code-line')];
+  lines.forEach((l, i) => reduce ? l.style.opacity = 1 : setTimeout(() => l.style.opacity = 1, 900 + i * 350));
+
+  // Particle network
+  const cv = document.getElementById('particles'), ctx = cv.getContext('2d');
+  let W, H, pts = [], pointer = { x: -999, y: -999 }, raf;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  function resize() {
+    const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n = Math.min(90, Math.floor(W * H / 14000));
+    pts = Array.from({ length: n }, () => ({ x: Math.random()*W, y: Math.random()*H, vx: (Math.random()-.5)*.4, vy: (Math.random()-.5)*.4 }));
+  }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    for (const p of pts) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+    }
+    const all = [...pts, pointer];
+    for (let i = 0; i < all.length; i++) {
+      const a = all[i];
+      if (a !== pointer) { ctx.fillStyle = 'rgba(10,132,255,.8)'; ctx.beginPath(); ctx.arc(a.x, a.y, 1.6, 0, 7); ctx.fill(); }
+      for (let j = i + 1; j < all.length; j++) {
+        const b = all[j], d = Math.hypot(a.x-b.x, a.y-b.y), isP = a === pointer || b === pointer, max = isP ? 170 : 110;
+        if (d < max) {
+          ctx.strokeStyle = isP ? `rgba(94,251,110,${1-d/max})` : `rgba(10,132,255,${(1-d/max)*.5})`;
+          ctx.lineWidth = isP ? 1.2 : .8; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+        }
+      }
+    }
+    raf = requestAnimationFrame(draw);
+  }
+  function setPointer(e) {
+    const t = e.touches ? e.touches[0] : e, r = cv.getBoundingClientRect();
+    pointer.x = t.clientX - r.left; pointer.y = t.clientY - r.top;
+  }
+  const hero = cv.parentElement;
+  hero.addEventListener('pointermove', setPointer, { passive: true });
+  hero.addEventListener('touchmove', setPointer, { passive: true });
+  hero.addEventListener('pointerleave', () => { pointer.x = pointer.y = -999; });
+  addEventListener('resize', resize);
+  new IntersectionObserver(([en]) => { cancelAnimationFrame(raf); if (en.isIntersecting && !reduce) draw(); }).observe(hero);
+  resize(); if (reduce) draw(), cancelAnimationFrame(raf);
+
+  // Magnetic buttons
+  if (fine && !reduce) document.querySelectorAll('.magnetic').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect();
+      b.style.transform = `translate(${(e.clientX-r.left-r.width/2)*.3}px,${(e.clientY-r.top-r.height/2)*.4}px)`; });
+    b.addEventListener('pointerleave', () => { b.style.transform = ''; });
+  });
+  // Touch: brief press-pull feedback
+  document.querySelectorAll('.magnetic').forEach(b => {
+    b.addEventListener('touchstart', () => b.style.transform = 'scale(.96)', { passive: true });
+    b.addEventListener('touchend', () => b.style.transform = '', { passive: true });
+  });
+
+  // Ripple on click/tap
+  if (!reduce) document.querySelectorAll('.btn').forEach(b => b.addEventListener('pointerdown', e => {
+    const r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2, d = document.createElement('span');
+    d.className = 'ripple';
+    d.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;
+    b.appendChild(d); d.addEventListener('animationend', () => d.remove());
+  }));
+
+  // 3D tilt + glow
+  document.querySelectorAll('.tilt').forEach(c => {
+    const move = e => {
+      const t = e.touches ? e.touches[0] : e, r = c.getBoundingClientRect();
+      const x = (t.clientX - r.left) / r.width, y = (t.clientY - r.top) / r.height;
+      c.style.setProperty('--mx', x*100 + '%'); c.style.setProperty('--my', y*100 + '%');
+      if (!reduce) c.style.transform = `rotateX(${(.5-y)*10}deg) rotateY(${(x-.5)*12}deg) translateZ(0)`;
+      c.classList.add('active');
+    };
+    const reset = () => { c.style.transform = ''; c.classList.remove('active'); };
+    c.addEventListener('pointermove', move); c.addEventListener('touchmove', move, { passive: true });
+    c.addEventListener('pointerleave', reset); c.addEventListener('touchend', reset);
+  });
+
+  // Scroll reveal: IntersectionObserver baseline, GSAP ScrollTrigger enhancement
+  const els = [...document.querySelectorAll('.reveal')];
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  addEventListener('load', () => {
+    if (window.gsap && window.ScrollTrigger && !reduce) {
+      gsap.registerPlugin(ScrollTrigger);
+      els.forEach((el, i) => gsap.fromTo(el, { opacity: 0, y: 28 }, {
+        opacity: 1, y: 0, duration: .8, ease: 'power3.out', delay: (i % 3) * .08,
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+      }));
+    } else els.forEach(el => io.observe(el));
+  });
+  // Safety net if CDN is slow
+  setTimeout(() => els.forEach(el => { if (!window.gsap) io.observe(el); }), 2500);
+
+  // PWA
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js');
+})();
+</script>
+</body>
+</html>

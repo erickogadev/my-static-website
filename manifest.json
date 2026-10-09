@@ -1,0 +1,14 @@
+{
+  "name": "Eric Koga | AI Engineer",
+  "short_name": "Eric Koga",
+  "description": "Consultoria em engenharia de software com IA.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#05070d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
